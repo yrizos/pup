@@ -16,7 +16,14 @@ install() {
         return 1
     fi
     
-    create_requirements_txt
+    pip install "$package"
+    local status=$?
+    
+    if [[ $status -eq 0 ]]; then
+        create_requirements_txt
+    fi
+    
+    return $status
 }
 
 uninstall() {
