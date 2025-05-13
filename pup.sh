@@ -80,7 +80,6 @@ list() {
     return 0
 }
 
-
 case "$1" in
     install)
         install "$2"
@@ -91,8 +90,11 @@ case "$1" in
     list)
         list
         ;;
+    sync)
+        pip install -r "$REQUIREMENTS_FILE"
+        ;;
     *)
-        echo "Usage: $0 {install|uninstall|list} <package>"
+        echo "Usage: $0 {install|uninstall|list|sync} <package>"
         exit 1
         ;;
 esac
