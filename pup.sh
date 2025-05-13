@@ -54,6 +54,33 @@ uninstall() {
     return $status
 }
 
+list() {
+    local missing_packages=0
+    
+    while IFS='=' read -r package version; do
+        version=$(echo "$version" | sed 's/=*//g')
+        
+        installed_version=$(pip freeze | grep "^${package}==" | cut -d'=' -f3)
+        
+        if [[ -z "$installed_version" ]]; then
+            echo -e "\033[31mError: Package ${package}==${version} is not installed\033[0m"
+            missing_packages=$((missing_packages + 1))
+        elif [[ "$version" != "$installed_version" ]]; then
+            echo -e "\033[31mError: Package ${package}==${version} version mismatch (found ${installed_version})\033[0m"
+            missing_packages=$((missing_packages + 1))
+        else
+            echo "${package}==${version}"
+        fi
+    done < "$REQUIREMENTS_FILE"
+    
+    if [[ $missing_packages -gt 0 ]]; then
+        return 1
+    fi
+    
+    return 0
+}
+
+
 case "$1" in
     install)
         install "$2"
@@ -61,8 +88,11 @@ case "$1" in
     uninstall)
         uninstall "$2"
         ;;
+    list)
+        list
+        ;;
     *)
-        echo "Usage: $0 {install|uninstall} <package>"
+        echo "Usage: $0 {install|uninstall|list} <package>"
         exit 1
         ;;
 esac
