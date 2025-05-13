@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 
-create_requirements_txt() {
-    local file="./requirements.txt"
+REQUIREMENTS_FILE="./requirements.txt"
+
+add_requirement() {
+    if [[ ! -f "$REQUIREMENTS_FILE" ]]; then
+        touch "$REQUIREMENTS_FILE"
+    fi
+
+    local package="$1"
+    local package_version=$(pip freeze | grep -i "^${package}==")
     
-    if [[ ! -f "$file" ]]; then
-        touch "$file"
+    if ! grep -q "^${package}==" "$REQUIREMENTS_FILE"; then
+        if [[ -s "$REQUIREMENTS_FILE" ]]; then
+            echo "" >> "$REQUIREMENTS_FILE"
+        fi
+        echo "$package_version" >> "$REQUIREMENTS_FILE"
     fi
 }
 
@@ -20,7 +30,7 @@ install() {
     local status=$?
     
     if [[ $status -eq 0 ]]; then
-        create_requirements_txt
+        add_requirement "$package"
     fi
     
     return $status
