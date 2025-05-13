@@ -43,6 +43,15 @@ uninstall() {
         echo "Error: Package name required"
         return 1
     fi
+    
+    pip uninstall -y "$package"
+    local status=$?
+    
+    if [[ $status -eq 0 ]]; then
+        sed -i '' "/^${package}==/d" "$REQUIREMENTS_FILE"
+    fi
+    
+    return $status
 }
 
 case "$1" in
